@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>나만의 MBTI 검사</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
   <main class="card" id="start-screen">
     <h1 class="title">나만의 MBTI 검사</h1>
@@ -14,6 +16,9 @@
   </main>
 
   <main class="card hidden" id="question-screen">
+    <div class="question-header">
+      <button class="btn-back" id="backBtn">← 이전</button>
+    </div>
     <div class="progress-bar">
       <div class="progress-fill" id="progressFill"></div>
     </div>
@@ -27,9 +32,14 @@
     <p class="result-type" id="resultType"></p>
     <p class="result-description" id="resultDescription"></p>
     <div class="score-bars" id="scoreBars"></div>
+    <div class="compatibility" id="compatibility">
+      <h3 class="compatibility-title">나와 잘 맞는 유형</h3>
+      <div class="compatibility-list" id="compatibilityList"></div>
+    </div>
     <button class="btn" id="restartBtn">다시하기</button>
   </main>
 
   <script src="script.js"></script>
 </body>
+
 </html>

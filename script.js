@@ -116,6 +116,25 @@ const typeDescriptions = {
   ENTJ: "대담한 통솔자 - 결단력 있고 카리스마 넘치는 리더"
 };
 
+const compatibilityMap = {
+  ISTJ: ["ESFP", "ESTP", "ISFJ"],
+  ISFJ: ["ESFP", "ESTP", "ISTJ"],
+  INFJ: ["ENFP", "ENTP", "INTJ"],
+  INTJ: ["ENFP", "ENTP", "INFJ"],
+  ISTP: ["ESFJ", "ESTJ", "ISFP"],
+  ISFP: ["ESFJ", "ESTJ", "ISTP"],
+  INFP: ["ENFJ", "ENTJ", "INFJ"],
+  INTP: ["ENFJ", "ENTJ", "INTJ"],
+  ESTP: ["ISFJ", "ISTJ", "ESFP"],
+  ESFP: ["ISFJ", "ISTJ", "ESTP"],
+  ENFP: ["INFJ", "INTJ", "ENTP"],
+  ENTP: ["INFJ", "INTJ", "ENFP"],
+  ESTJ: ["ISFP", "ISTP", "ESFJ"],
+  ESFJ: ["ISFP", "ISTP", "ESTJ"],
+  ENFJ: ["INFP", "INTP", "ENTJ"],
+  ENTJ: ["INFP", "INTP", "ENFJ"]
+};
+
 const startScreen = document.getElementById("start-screen");
 const questionScreen = document.getElementById("question-screen");
 const resultScreen = document.getElementById("result-screen");
@@ -126,8 +145,10 @@ const optionsContainer = document.getElementById("optionsContainer");
 const resultType = document.getElementById("resultType");
 const resultDescription = document.getElementById("resultDescription");
 const scoreBars = document.getElementById("scoreBars");
+const compatibilityList = document.getElementById("compatibilityList");
 const startBtn = document.getElementById("startBtn");
 const restartBtn = document.getElementById("restartBtn");
+const backBtn = document.getElementById("backBtn");
 
 let currentQuestionIndex = 0;
 let answers = [];
@@ -144,6 +165,7 @@ function showQuestion() {
   progressFill.style.width = `${((currentQuestionIndex + 1) / questions.length) * 100}%`;
   progressText.textContent = `${currentQuestionIndex + 1} / ${questions.length}`;
   questionText.textContent = question.text;
+  backBtn.disabled = currentQuestionIndex === 0;
 
   optionsContainer.innerHTML = "";
 
@@ -155,6 +177,14 @@ function showQuestion() {
     optionsContainer.appendChild(optionBtn);
   });
 }
+
+backBtn.addEventListener("click", () => {
+  if (currentQuestionIndex === 0) return;
+
+  currentQuestionIndex--;
+  answers.pop();
+  showQuestion();
+});
 
 function selectAnswer(value) {
   const optionButtons = optionsContainer.querySelectorAll(".option-btn");
@@ -179,6 +209,23 @@ function showResult() {
   resultType.textContent = type;
   resultDescription.textContent = typeDescriptions[type];
   showScoreBars();
+  showCompatibility(type);
+}
+
+function showCompatibility(type) {
+  const matches = compatibilityMap[type];
+
+  compatibilityList.innerHTML = "";
+
+  matches.forEach((matchType) => {
+    const item = document.createElement("div");
+    item.className = "compatibility-item";
+    item.innerHTML = `
+      <span class="compatibility-type">${matchType}</span>
+      <span class="compatibility-desc">${typeDescriptions[matchType]}</span>
+    `;
+    compatibilityList.appendChild(item);
+  });
 }
 
 function getCounts() {
