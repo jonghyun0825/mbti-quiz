@@ -1,100 +1,45 @@
+const firebaseConfig = {
+  apiKey: "AIzaSyD2By37zh78GEZTal10zjhUKpDFsxl3kpA",
+  authDomain: "mbti-34069.firebaseapp.com",
+  projectId: "mbti-34069",
+  storageBucket: "mbti-34069.firebasestorage.app",
+  messagingSenderId: "6988497323",
+  appId: "1:6988497323:web:1e36c1a4d3ffa1b17212ee"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const googleProvider = new firebase.auth.GoogleAuthProvider();
+
 const questions = [
-  {
-    axis: "EI",
-    text: "새로운 모임에 가면 나는...",
-    options: [
-      { text: "여러 사람과 자연스럽게 어울린다", value: "E" },
-      { text: "친한 몇 명과 조용히 이야기한다", value: "I" }
-    ]
-  },
-  {
-    axis: "EI",
-    text: "주말을 보낼 때 나는...",
-    options: [
-      { text: "밖에서 사람들을 만나며 에너지를 얻는다", value: "E" },
-      { text: "집에서 혼자만의 시간으로 에너지를 얻는다", value: "I" }
-    ]
-  },
-  {
-    axis: "EI",
-    text: "대화할 때 나는...",
-    options: [
-      { text: "생각을 말하면서 정리하는 편이다", value: "E" },
-      { text: "충분히 생각한 후에 말하는 편이다", value: "I" }
-    ]
-  },
-  {
-    axis: "SN",
-    text: "새로운 일을 배울 때 나는...",
-    options: [
-      { text: "구체적인 사실과 경험을 중시한다", value: "S" },
-      { text: "전체적인 그림과 가능성을 중시한다", value: "N" }
-    ]
-  },
-  {
-    axis: "SN",
-    text: "더 끌리는 대화 주제는...",
-    options: [
-      { text: "현실적이고 실용적인 이야기", value: "S" },
-      { text: "상상력과 아이디어가 담긴 이야기", value: "N" }
-    ]
-  },
-  {
-    axis: "SN",
-    text: "문제를 해결할 때 나는...",
-    options: [
-      { text: "이미 검증된 방법을 따른다", value: "S" },
-      { text: "새로운 방식을 시도해본다", value: "N" }
-    ]
-  },
-  {
-    axis: "TF",
-    text: "결정을 내릴 때 나에게 더 중요한 것은...",
-    options: [
-      { text: "논리와 원칙", value: "T" },
-      { text: "감정과 관계", value: "F" }
-    ]
-  },
-  {
-    axis: "TF",
-    text: "친구가 고민을 털어놓으면 나는...",
-    options: [
-      { text: "해결책을 먼저 제시한다", value: "T" },
-      { text: "먼저 공감하고 위로한다", value: "F" }
-    ]
-  },
-  {
-    axis: "TF",
-    text: "비판을 받을 때 나는...",
-    options: [
-      { text: "객관적인 피드백으로 받아들인다", value: "T" },
-      { text: "감정적으로 먼저 반응하게 된다", value: "F" }
-    ]
-  },
-  {
-    axis: "JP",
-    text: "여행 계획을 세울 때 나는...",
-    options: [
-      { text: "일정을 미리 세세하게 정한다", value: "J" },
-      { text: "즉흥적으로 정하는 걸 즐긴다", value: "P" }
-    ]
-  },
-  {
-    axis: "JP",
-    text: "일을 처리하는 방식은...",
-    options: [
-      { text: "마감 전에 미리 끝내둔다", value: "J" },
-      { text: "마감이 임박해야 집중이 잘 된다", value: "P" }
-    ]
-  },
-  {
-    axis: "JP",
-    text: "나의 하루는...",
-    options: [
-      { text: "계획대로 흘러가는 게 편하다", value: "J" },
-      { text: "상황에 따라 유연하게 바뀌는 게 편하다", value: "P" }
-    ]
-  }
+  { axis: "EI", direction: "E", text: "새로운 모임에 가면 나는 여러 사람과 자연스럽게 어울린다." },
+  { axis: "EI", direction: "I", text: "주말에는 집에서 혼자만의 시간을 보내야 에너지가 회복되는 편이다." },
+  { axis: "EI", direction: "E", text: "대화할 때 나는 생각을 말로 하면서 정리하는 편이다." },
+  { axis: "SN", direction: "S", text: "새로운 것을 배울 때 나는 구체적인 사실과 경험을 중시한다." },
+  { axis: "SN", direction: "N", text: "나는 현실적인 이야기보다 상상력과 아이디어가 담긴 이야기에 더 끌린다." },
+  { axis: "SN", direction: "S", text: "문제를 해결할 때 나는 이미 검증된 방법을 따르는 편이다." },
+  { axis: "TF", direction: "T", text: "결정을 내릴 때 나에게는 감정보다 논리와 원칙이 더 중요하다." },
+  { axis: "TF", direction: "F", text: "친구가 고민을 털어놓으면 나는 해결책보다 공감과 위로를 먼저 건넨다." },
+  { axis: "TF", direction: "T", text: "비판을 받을 때 나는 감정적으로 반응하기보다 객관적인 피드백으로 받아들이는 편이다." },
+  { axis: "JP", direction: "J", text: "여행 계획을 세울 때 나는 일정을 미리 세세하게 정해두는 편이다." },
+  { axis: "JP", direction: "P", text: "나는 마감이 임박해야 오히려 집중이 잘 되는 편이다." },
+  { axis: "JP", direction: "J", text: "나의 하루는 계획대로 흘러갈 때 더 편안하다." }
+];
+
+const likertScale = [
+  { label: "아니다", weight: -2 },
+  { label: "아닌 것 같다", weight: -1 },
+  { label: "중립", weight: 0 },
+  { label: "맞는 것 같다", weight: 1 },
+  { label: "맞다", weight: 2 }
+];
+
+const axisPairs = [
+  ["E", "I", "EI"],
+  ["S", "N", "SN"],
+  ["T", "F", "TF"],
+  ["J", "P", "JP"]
 ];
 
 const typeDescriptions = {
@@ -138,6 +83,7 @@ const compatibilityMap = {
 const startScreen = document.getElementById("start-screen");
 const questionScreen = document.getElementById("question-screen");
 const resultScreen = document.getElementById("result-screen");
+const historyScreen = document.getElementById("history-screen");
 const progressFill = document.getElementById("progressFill");
 const progressText = document.getElementById("progressText");
 const questionText = document.getElementById("questionText");
@@ -146,12 +92,119 @@ const resultType = document.getElementById("resultType");
 const resultDescription = document.getElementById("resultDescription");
 const scoreBars = document.getElementById("scoreBars");
 const compatibilityList = document.getElementById("compatibilityList");
+const authBox = document.getElementById("authBox");
+const historyList = document.getElementById("historyList");
 const startBtn = document.getElementById("startBtn");
 const restartBtn = document.getElementById("restartBtn");
 const backBtn = document.getElementById("backBtn");
+const historyBackBtn = document.getElementById("historyBackBtn");
 
 let currentQuestionIndex = 0;
 let answers = [];
+let currentUser = null;
+
+auth.onAuthStateChanged((user) => {
+  currentUser = user;
+  renderAuthBox(user);
+});
+
+function renderAuthBox(user) {
+  authBox.innerHTML = "";
+
+  if (user) {
+    const userInfo = document.createElement("div");
+    userInfo.className = "user-info";
+    userInfo.innerHTML = `
+      <span class="user-name">${user.displayName || user.email}님</span>
+      <span class="user-actions">
+        <button class="btn-small" id="historyBtn">내 기록</button>
+        <button class="btn-small" id="logoutBtn">로그아웃</button>
+      </span>
+    `;
+    authBox.appendChild(userInfo);
+
+    document.getElementById("historyBtn").addEventListener("click", showHistory);
+    document.getElementById("logoutBtn").addEventListener("click", () => auth.signOut());
+  } else {
+    const loginBtn = document.createElement("button");
+    loginBtn.className = "btn-google";
+    loginBtn.textContent = "Google로 로그인";
+    loginBtn.addEventListener("click", () => {
+      auth.signInWithPopup(googleProvider).catch((error) => {
+        alert("로그인에 실패했습니다: " + error.message);
+      });
+    });
+    authBox.appendChild(loginBtn);
+  }
+}
+
+async function saveResult(type, percentages) {
+  if (!currentUser) return;
+
+  try {
+    await db.collection("results").add({
+      uid: currentUser.uid,
+      type,
+      percentages,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } catch (error) {
+    console.error("결과 저장에 실패했습니다:", error);
+  }
+}
+
+async function showHistory() {
+  if (!currentUser) return;
+
+  startScreen.classList.add("hidden");
+  historyScreen.classList.remove("hidden");
+  historyList.innerHTML = `<p class="history-empty">불러오는 중...</p>`;
+
+  try {
+    const snapshot = await db
+      .collection("results")
+      .where("uid", "==", currentUser.uid)
+      .orderBy("createdAt", "desc")
+      .get();
+
+    if (snapshot.empty) {
+      historyList.innerHTML = `<p class="history-empty">아직 저장된 기록이 없어요.</p>`;
+      return;
+    }
+
+    historyList.innerHTML = "";
+
+    snapshot.forEach((doc) => {
+      const data = doc.data();
+      const date = data.createdAt ? data.createdAt.toDate().toLocaleDateString("ko-KR") : "";
+      const percentSummary = axisPairs
+        .map(([left, right, axisKey]) => {
+          const p = data.percentages[axisKey];
+          return `${left} ${p.leftPercent}% / ${right} ${p.rightPercent}%`;
+        })
+        .join(" · ");
+
+      const item = document.createElement("div");
+      item.className = "history-item";
+      item.innerHTML = `
+        <div class="history-top">
+          <span class="history-type">${data.type}</span>
+          <span class="history-date">${date}</span>
+        </div>
+        <div class="history-percentages">${percentSummary}</div>
+      `;
+      historyList.appendChild(item);
+    });
+  } catch (error) {
+    historyList.innerHTML = `<p class="history-empty">기록을 불러오지 못했어요.</p>`;
+    console.error("기록 조회에 실패했습니다:", error);
+  }
+}
+
+historyBackBtn.addEventListener("click", () => {
+  historyScreen.classList.add("hidden");
+  startScreen.classList.remove("hidden");
+});
 
 startBtn.addEventListener("click", () => {
   startScreen.classList.add("hidden");
@@ -169,11 +222,11 @@ function showQuestion() {
 
   optionsContainer.innerHTML = "";
 
-  question.options.forEach((option) => {
+  likertScale.forEach((scaleItem) => {
     const optionBtn = document.createElement("button");
     optionBtn.className = "option-btn";
-    optionBtn.textContent = option.text;
-    optionBtn.addEventListener("click", () => selectAnswer(option.value));
+    optionBtn.textContent = scaleItem.label;
+    optionBtn.addEventListener("click", () => selectAnswer(scaleItem.weight));
     optionsContainer.appendChild(optionBtn);
   });
 }
@@ -186,11 +239,11 @@ backBtn.addEventListener("click", () => {
   showQuestion();
 });
 
-function selectAnswer(value) {
+function selectAnswer(weight) {
   const optionButtons = optionsContainer.querySelectorAll(".option-btn");
   optionButtons.forEach((btn) => (btn.disabled = true));
 
-  answers.push(value);
+  answers.push(weight);
   currentQuestionIndex++;
 
   if (currentQuestionIndex < questions.length) {
@@ -201,15 +254,17 @@ function selectAnswer(value) {
 }
 
 function showResult() {
-  const type = calculateType();
+  const percentages = getAxisPercentages();
+  const type = calculateType(percentages);
 
   questionScreen.classList.add("hidden");
   resultScreen.classList.remove("hidden");
 
   resultType.textContent = type;
   resultDescription.textContent = typeDescriptions[type];
-  showScoreBars();
+  showScoreBars(percentages);
   showCompatibility(type);
+  saveResult(type, percentages);
 }
 
 function showCompatibility(type) {
@@ -228,43 +283,44 @@ function showCompatibility(type) {
   });
 }
 
-function getCounts() {
-  const counts = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+function getAxisScores() {
+  const scores = { EI: 0, SN: 0, TF: 0, JP: 0 };
 
-  answers.forEach((answer) => {
-    counts[answer]++;
+  questions.forEach((question, index) => {
+    const weight = answers[index];
+    if (weight === undefined) return;
+
+    const sign = question.direction === question.axis[0] ? 1 : -1;
+    scores[question.axis] += weight * sign;
   });
 
-  return counts;
+  return scores;
 }
 
-function calculateType() {
-  const counts = getCounts();
+function getAxisPercentages() {
+  const scores = getAxisScores();
+  const percentages = {};
 
-  const result =
-    (counts.E >= counts.I ? "E" : "I") +
-    (counts.S >= counts.N ? "S" : "N") +
-    (counts.T >= counts.F ? "T" : "F") +
-    (counts.J >= counts.P ? "J" : "P");
+  axisPairs.forEach(([left, right, axisKey]) => {
+    const maxScore = questions.filter((q) => q.axis === axisKey).length * 2;
+    const leftPercent = Math.round(((scores[axisKey] + maxScore) / (maxScore * 2)) * 100);
+    percentages[axisKey] = { left, right, leftPercent, rightPercent: 100 - leftPercent };
+  });
 
-  return result;
+  return percentages;
 }
 
-function showScoreBars() {
-  const counts = getCounts();
-  const axisPairs = [
-    ["E", "I"],
-    ["S", "N"],
-    ["T", "F"],
-    ["J", "P"]
-  ];
+function calculateType(percentages) {
+  return axisPairs
+    .map(([left, right, axisKey]) => (percentages[axisKey].leftPercent >= 50 ? left : right))
+    .join("");
+}
 
+function showScoreBars(percentages) {
   scoreBars.innerHTML = "";
 
-  axisPairs.forEach(([left, right]) => {
-    const total = counts[left] + counts[right];
-    const leftPercent = Math.round((counts[left] / total) * 100);
-    const rightPercent = 100 - leftPercent;
+  axisPairs.forEach(([left, right, axisKey]) => {
+    const { leftPercent, rightPercent } = percentages[axisKey];
 
     const row = document.createElement("div");
     row.className = "score-row";
