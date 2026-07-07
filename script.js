@@ -28,11 +28,11 @@ const questions = [
 ];
 
 const likertScale = [
-  { label: "아니다", weight: -2 },
-  { label: "아닌 것 같다", weight: -1 },
+  { label: "매우 그렇다", weight: 2 },
+  { label: "그렇다", weight: 1 },
   { label: "중립", weight: 0 },
-  { label: "맞는 것 같다", weight: 1 },
-  { label: "맞다", weight: 2 }
+  { label: "아니다", weight: -1 },
+  { label: "매우 아니다", weight: -2 }
 ];
 
 const axisPairs = [
@@ -164,7 +164,6 @@ async function showHistory() {
     const snapshot = await db
       .collection("results")
       .where("uid", "==", currentUser.uid)
-      .orderBy("createdAt", "desc")
       .get();
 
     if (snapshot.empty) {
@@ -174,8 +173,11 @@ async function showHistory() {
 
     historyList.innerHTML = "";
 
-    snapshot.forEach((doc) => {
-      const data = doc.data();
+    const results = snapshot.docs
+      .map((doc) => doc.data())
+      .sort((a, b) => (b.createdAt?.toMillis() ?? 0) - (a.createdAt?.toMillis() ?? 0));
+
+    results.forEach((data) => {
       const date = data.createdAt ? data.createdAt.toDate().toLocaleDateString("ko-KR") : "";
       const percentSummary = axisPairs
         .map(([left, right, axisKey]) => {
