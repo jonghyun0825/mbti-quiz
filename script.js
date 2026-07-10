@@ -7,6 +7,12 @@ const firebaseConfig = {
   appId: "1:6988497323:web:1e36c1a4d3ffa1b17212ee"
 };
 
+// Google Cloud Console에서 발급받은 YouTube Data API v3 키로 교체하세요.
+// (API 및 서비스 > 사용자 인증 정보 > API 키 생성 후, 애플리케이션 제한사항을
+//  HTTP 리퍼러로 설정해 배포 도메인(예: *.github.io/*)에서만 쓰이도록 제한할 것)
+const YOUTUBE_API_KEY = "AIzaSyCNFq2Tan13XEcM96Pmiw_avbCu2GOwBGI";
+const YOUTUBE_CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
@@ -113,6 +119,7 @@ const resultDescription = document.getElementById("resultDescription");
 const scoreBars = document.getElementById("scoreBars");
 const resultDetail = document.getElementById("resultDetail");
 const compatibilityList = document.getElementById("compatibilityList");
+const youtubeList = document.getElementById("youtubeList");
 const authBox = document.getElementById("authBox");
 const historyList = document.getElementById("historyList");
 const startBtn = document.getElementById("startBtn");
@@ -295,7 +302,82 @@ function showResult() {
   resultDetail.textContent = typeDetails[type];
   showScoreBars(percentages);
   showCompatibility(type);
+  showYoutubeVideos(type);
   saveResult(type, percentages);
+}
+
+async function fetchYoutubeVideos(type) {
+  const cacheKey = `ytCache_${type}`;
+  const cached = localStorage.getItem(cacheKey);
+
+  if (cached) {
+    try {
+      const { timestamp, videos } = JSON.parse(cached);
+      if (Date.now() - timestamp < YOUTUBE_CACHE_TTL_MS) {
+        return videos;
+      }
+    } catch (error) {
+      // 캐시가 손상된 경우 무시하고 새로 요청한다.
+    }
+  }
+
+  const params = new URLSearchParams({
+    part: "snippet",
+    type: "video",
+    maxResults: "3",
+    q: `${type} 유형`,
+    relevanceLanguage: "ko",
+    regionCode: "KR",
+    safeSearch: "strict",
+    key: YOUTUBE_API_KEY
+  });
+
+  const response = await fetch(`https://www.googleapis.com/youtube/v3/search?${params}`);
+  if (!response.ok) throw new Error(`YouTube API 요청 실패: ${response.status}`);
+
+  const data = await response.json();
+  const videos = data.items.map((item) => ({
+    id: item.id.videoId,
+    title: item.snippet.title,
+    thumbnail: item.snippet.thumbnails.medium.url
+  }));
+
+  localStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), videos }));
+  return videos;
+}
+
+async function showYoutubeVideos(type) {
+  youtubeList.innerHTML = `<p class="youtube-loading">영상을 불러오는 중...</p>`;
+
+  try {
+    const videos = await fetchYoutubeVideos(type);
+    youtubeList.innerHTML = "";
+
+    videos.forEach((video) => {
+      const link = document.createElement("a");
+      link.className = "youtube-item";
+      link.href = `https://www.youtube.com/watch?v=${encodeURIComponent(video.id)}`;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+
+      const img = document.createElement("img");
+      img.className = "youtube-thumbnail";
+      img.src = video.thumbnail;
+      img.alt = video.title;
+      img.loading = "lazy";
+
+      const titleSpan = document.createElement("span");
+      titleSpan.className = "youtube-item-title";
+      titleSpan.textContent = video.title;
+
+      link.appendChild(img);
+      link.appendChild(titleSpan);
+      youtubeList.appendChild(link);
+    });
+  } catch (error) {
+    youtubeList.innerHTML = `<p class="youtube-loading">관련 영상을 불러오지 못했어요.</p>`;
+    console.error("유튜브 영상 조회에 실패했습니다:", error);
+  }
 }
 
 function showCompatibility(type) {
